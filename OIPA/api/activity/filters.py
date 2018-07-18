@@ -17,6 +17,7 @@ from api.generics.filters import CommaSeparatedStickyCharFilter
 from api.generics.filters import TogetherFilterSet
 from api.generics.filters import ToManyFilter
 from api.generics.filters import ToManyNotInFilter
+from api.generics.filters import StartsWithInCommaSeparatedCharFilter
 
 from rest_framework import filters
 from django.db.models import Q, F
@@ -238,6 +239,11 @@ class ActivityFilter(TogetherFilterSet):
         lookup_expr='in',
         name='sector__code',
         fk='activity',
+    )
+
+    sdg_sector = StartsWithInCommaSeparatedCharFilter(
+        lookup_expr='startswith',
+        name='sector__code',
     )
 
     sector_startswith = ToManyFilter(

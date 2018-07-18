@@ -396,3 +396,18 @@ class NestedFilter(CommaSeparatedCharMultipleFilter):
             return qs
 
         return qs.filter(id__in=self.nested_filter.filter(qs, value))
+
+
+class StartsWithInCommaSeparatedCharFilter(CharFilter):
+
+    def filter(self, qs, values):
+        if values:
+            values = values.split(',')
+            values = reduce(reduce_comma, values, [])
+
+        query = Q()
+        for value in values:
+            query = query | \
+                    Q(**{"{}__{}".format(self.name, self.lookup_expr): value})
+
+        return qs.filter(query)
