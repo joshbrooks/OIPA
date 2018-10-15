@@ -4033,7 +4033,6 @@ class Parse(IatiParser):
 
         return element
 
-    # TODO: update test:
     def iati_activities__iati_activity__result__indicator__period__target(
             self, element):
 

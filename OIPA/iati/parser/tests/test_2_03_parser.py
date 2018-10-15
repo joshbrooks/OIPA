@@ -1997,3 +1997,172 @@ class ActivityResultIndicatorDocumentLinkCategoryTestCase(TestCase):
                          document_link)
         self.assertEqual(indicator_document_link_category.category,
                          indicator_document_category)
+
+
+class ActivityResultIndicatorPeriodTargetDocumentLinkTestCase(TestCase):
+
+    """
+    2.03: The optional document-link element was added.
+    """
+
+    def setUp(self):
+        # 'Main' XML file for instantiating parser:
+        xml_file_attrs = {
+            "generated-datetime": datetime.datetime.now().isoformat(),
+            "version": '2.03',
+        }
+        self.iati_203_XML_file = E("iati-activities", **xml_file_attrs)
+
+        dummy_source = synchroniser_factory.DatasetFactory.create()
+
+        self.parser_203 = ParseManager(
+            dataset=dummy_source,
+            root=self.iati_203_XML_file,
+        ).get_parser()
+
+        # Related objects:
+        self.result_indicator_period_target = iati_factory.\
+            ResultIndicatorPeriodTargetFactory()
+        self.result_indicator_period = self.result_indicator_period_target\
+            .result_indicator_period
+        self.result_indicator = self.result_indicator_period.result_indicator
+        self.activity = self.result_indicator.result.activity
+        self.result = self.result_indicator.result
+
+        self.parser_203.register_model('Activity', self.activity)
+        self.parser_203.register_model('Result', self.result)
+        self.parser_203.register_model(
+            'ResultIndicator', self.result_indicator
+        )
+        self.parser_203.register_model(
+            'ResultIndicatorPeriod', self.result_indicator_period
+        )
+        self.parser_203.register_model(
+            'ResultIndicatorPeriodTarget', self.result_indicator_period_target
+        )
+
+    def test_activity_result_indicator_period_target_document_link(self):
+
+        # Case 1:
+        #  'url is missing'
+
+        result_indicator_period_target_document_link_attr = {
+            # url = 'missing'
+
+            "format": 'something'
+
+            # 'format_code' will be got in the function
+
+        }
+        result_indicator_period_target_document_link_XML_element = E(
+            'document_link',
+            **result_indicator_period_target_document_link_attr
+        )
+
+        try:
+            self.parser_203.\
+                iati_activities__iati_activity__result__indicator__period__target__document_link(  # NOQA: E501
+                    result_indicator_period_target_document_link_XML_element)
+            self.assertFail()
+        except RequiredFieldError as inst:
+            self.assertEqual(inst.field, 'url')
+            self.assertEqual(inst.message, 'required attribute missing')
+
+        # Case 2:
+        # 'file_format' is missing
+
+        result_indicator_period_target_document_link_attr = {
+            "url": 'www.google.com'
+
+            # "format":
+            # 'format_code' will be got in the function
+
+        }
+        result_indicator_period_target_document_link_XML_element = E(
+            'document-link',
+            **result_indicator_period_target_document_link_attr
+        )
+        try:
+            self.parser_203.\
+                iati_activities__iati_activity__result__indicator__document_link(  # NOQA: E501
+                    result_indicator_period_target_document_link_XML_element
+                )
+            self.assertFail()
+        except RequiredFieldError as inst:
+            self.assertEqual(inst.field, 'format')
+            self.assertEqual(inst.message, 'required attribute missing')
+
+        # Case 3;
+        # 'file_format_code' is missing
+
+        result_indicator_period_target_document_link_attr = {
+            "url": 'www.google.com',
+            "format": 'something',
+            # 'format_code will be got in the function
+
+        }
+        result_indicator_period_target_document_link_XML_element = E(
+            'document-link',
+            **result_indicator_period_target_document_link_attr
+        )
+        try:
+            self.parser_203.\
+                iati_activities__iati_activity__result__indicator__document_link(  # NOQA: E501
+                    result_indicator_period_target_document_link_XML_element
+                )
+            self.assertFail()
+        except FieldValidationError as inst:
+            self.assertEqual(inst.field, 'format')
+            self.assertEqual(inst.message, 'not found on the accompanying '
+                                           'code list')
+
+        # Case 4;
+        # all is good
+
+        # dummy document-link object
+        dummy_file_format = codelist_factory.\
+            FileFormatFactory(code='application/pdf')
+
+        dummy_document_link = iati_factory.\
+            DocumentLinkFactory(url='http://aasamannepal.org.np/')
+
+        self.parser_203.codelist_cache = {}
+
+        result_indicator_period_target_document_link_attr = {
+            "url": dummy_document_link.url,
+            "format": dummy_file_format.code
+
+        }
+        result_indicator_period_target_document_link_XML_element = E(
+            'document-link',
+            **result_indicator_period_target_document_link_attr
+        )
+
+        self.parser_203 \
+            .iati_activities__iati_activity__result__indicator__document_link(
+                result_indicator_period_target_document_link_XML_element
+            )
+
+        result_indicator_period_target_document_link = self.parser_203.\
+            get_model(
+                'DocumentLink'
+            )
+
+        # checking if everything is saved
+
+        self.assertEqual(
+            result_indicator_period_target_document_link.url,
+            dummy_document_link.url
+        )
+        self.assertEqual(
+            result_indicator_period_target_document_link.file_format,
+            dummy_document_link.file_format
+        )
+        self.assertEqual(
+            result_indicator_period_target_document_link.activity,
+            self.activity
+        )
+        self.assertEqual(
+            result_indicator_period_target_document_link.result_indicator,
+            self.result_indicator
+        )
