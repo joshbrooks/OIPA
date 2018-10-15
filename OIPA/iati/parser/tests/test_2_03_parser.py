@@ -1308,7 +1308,7 @@ class ActivityResultDocumentLinkTitleTestCase(TestCase):
 
     def test_activity_result_document_link_title(self):
         '''
-        Test if title attribute in <document_link> XML element is correctly
+        Test if title attribute in <document-link> XML element is correctly
         saved.
         '''
 
@@ -1370,7 +1370,7 @@ class ActivityResultDocumentLinkCategoryTestCase(TestCase):
     def test_activity_result_document_link_document_category(self):
 
         """
-        Test if <document_link> attribute in <documen_link_category> XML
+        Test if <document-link> attribute in <documen_link_category> XML
         element is correctly saved.
         """
 
@@ -1473,7 +1473,7 @@ class ActivityResultDocumentLinkDocumentDateTestCase(TestCase):
 
     def test_activity_result_document_link_document_date(self):
         '''
-        Test if iso-date attribute in <document_link> XML element is
+        Test if iso-date attribute in <document-link> XML element is
         correctly saved.
         '''
 
@@ -1755,7 +1755,7 @@ class ActivityResultIndicatorDocumentLinkDocumentDateTestCase(TestCase):
 
     def test_activity_result_indicator_document_link_document_date(self):
         """
-        Test if iso-date attribute in <document_link> XML element is correctly
+        Test if iso-date attribute in <document-link> XML element is correctly
         saved.
         """
 
@@ -1859,7 +1859,7 @@ class ActivityResultIndicatorDocumentLinkTitleTestCase(TestCase):
 
     def test_activity_result_indicator_document_link_title(self):
         '''
-        Test if title attribute in <document_link> XML element for
+        Test if title attribute in <document-link> XML element for
         <indicator> element is correctly saved.
         '''
 
