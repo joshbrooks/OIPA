@@ -2326,3 +2326,107 @@ class ActivityResultIndicatorPeriodTargetDocumentLinkTitleTestCase(TestCase):
 
         self.assertEqual(self.document_link,
                          document_link_title.document_link)
+
+
+class ActivityResultIndicatorPeriodTargetDocumentLinkDocumentDateTestCase(TestCase):  # NOQA: E501
+
+    '''New (optional) <document-link> element for <target> element
+       inside <result> <indicator>'s <period> element in 2.03
+    '''
+
+    def setUp(self):
+        # 'Main' XML file for instantiating parser:
+        xml_file_attrs = {
+            "generated-datetime": datetime.datetime.now().isoformat(),
+            "version": '2.03',
+        }
+        self.iati_203_XML_file = E("iati-activities", **xml_file_attrs)
+
+        dummy_source = synchroniser_factory.DatasetFactory.create()
+
+        self.parser_203 = ParseManager(
+            dataset=dummy_source,
+            root=self.iati_203_XML_file,
+        ).get_parser()
+
+        # Related objects:
+        self.document_link = iati_factory.DocumentLinkFactory.create()
+
+        self.parser_203.register_model(
+            'DocumentLink', self.document_link
+        )
+
+    def test_activity_result_indicator_period_target_document_link_document_date(self):  # NOQA: E501
+        """
+        Test if iso-date attribute in <document-link> XML element is correctly
+        saved.
+        """
+
+        # Case 1: 'ido-date' attribute is missing:
+
+        document_date_attr = {
+            # 'iso-date': '2018-10-10',
+        }
+
+        document_date_XML_element = E(
+            'document-date',
+            **document_date_attr
+        )
+
+        try:
+            self.parser_203.\
+                iati_activities__iati_activity__result__indicator__period__target__document_link__document_date(  # NOQA: E501
+                    document_date_XML_element)
+            self.assertFail()
+        except RequiredFieldError as inst:
+            self.assertEqual(inst.field, 'iso-date')
+            self.assertEqual(inst.message, 'required attribute missing')
+
+        # Case 2:
+        # ISO date is invalid:
+
+        document_date_attr = {
+            'iso-date': '2018-10-ab',
+        }
+        document_date_XML_element = E(
+            'document-date',
+            **document_date_attr
+        )
+
+        try:
+            self.parser_203.\
+                iati_activities__iati_activity__result__indicator__period__target__document_link__document_date(  # NOQA: E501
+                    document_date_XML_element)
+            self.assertFail()
+        except RequiredFieldError as inst:
+            self.assertEqual(inst.field, 'iso-date')
+            self.assertEqual(
+                inst.message,
+                'Unspecified or invalid. Date should be of type xml:date.'
+            )
+
+        # Case 3:
+        # all is good:
+
+        document_date_attr = {
+            'iso-date': '2018-10-10',
+        }
+        document_date_XML_element = E(
+            'document-date',
+            **document_date_attr
+        )
+
+        self.parser_203.\
+            iati_activities__iati_activity__result__indicator__period__target__document_link__document_date(  # NOQA: E501
+                document_date_XML_element
+            )
+
+        result_indicator_period_target_document_link = self.\
+            parser_203.get_model(
+                'DocumentLink'
+            )
+
+        self.assertEqual(
+            result_indicator_period_target_document_link.iso_date,
+            datetime.datetime(2018, 10, 10, 0, 0)
+        )
